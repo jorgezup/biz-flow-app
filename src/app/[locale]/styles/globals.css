@@ -24,6 +24,7 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
+  font-family: 'Poppins', sans-serif;
 }
 
 @layer utilities {
@@ -31,3 +32,38 @@ body {
     text-wrap: balance;
   }
 }
+
+@media print {
+  .sidebar {
+    display: none !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: left;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
+
+  .container {
+    box-shadow: none;
+    padding: 0;
+  }
+}
+
+
+
+
