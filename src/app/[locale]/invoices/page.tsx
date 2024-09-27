@@ -72,8 +72,17 @@ const InvoicesPage = () => {
       link.href = url;
 
       // Nome do arquivo com base no cliente e período
+      const formatInvoiceDate = (date: string): string => {
+        const day = date.slice(8, 10);
+        const month = date.slice(5, 7);
+        const year = date.slice(0, 4);
+        return `${day}-${month}-${year}`;
+      }
+      const startDateFormatted = formatInvoiceDate(startDate);
+      const endDateFormatted = formatInvoiceDate(endDate);
+      
       const customerName = customers.find(c => c.customerId === selectedCustomerId)?.name.replace(/ /g, '_');
-      link.download = `${customerName}_${startDate}_${endDate}.pdf`;
+      link.download = `${customerName}_${startDateFormatted}_${endDateFormatted}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -138,14 +147,8 @@ const InvoicesPage = () => {
             className="bg-blue-500 text-white px-6 py-2 rounded shadow hover:bg-blue-700 transition"
             disabled={loadingInvoice}
           >
-            {loadingInvoice ? (
-              <span>{common('generatingInvoice')}...</span>
-            ) : (
-              <>
-                <FiDownload className="inline mr-2" />
-                {t('generateInvoice')}
-              </>
-            )}
+            <FiDownload className="inline mr-2" />
+            {t('generateInvoice')}
           </button>
         </div>
 
