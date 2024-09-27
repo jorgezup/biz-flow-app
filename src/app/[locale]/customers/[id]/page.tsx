@@ -84,7 +84,7 @@ const CustomerDetailPage = ({ params }: { params: { id: string } }) => {
       toast.success(c('successDelete'));
       setTimeout(() => {
         router.push(`/${locale}/customers`);
-      }, 2000);
+      }, 1000);
     } catch (error) {
       toast.error(c('errorDelete'));
       console.error('Error deleting customer:', error);
@@ -121,10 +121,7 @@ const CustomerDetailPage = ({ params }: { params: { id: string } }) => {
     quantity: number;
   }) => {
     const { productId, preferredPurchaseDay, quantity } = formData;
-    const method = editPreferenceId ? 'PUT' : 'POST';
-    const endpoint = editPreferenceId 
-      ? `${apiUrl}/customer-preferences?id=${editPreferenceId}` 
-      : `${apiUrl}/customer-preferences`;
+    const endpoint = `${apiUrl}/customer-preferences`;
     const body = {
       customerId,
       productId,
@@ -134,7 +131,7 @@ const CustomerDetailPage = ({ params }: { params: { id: string } }) => {
 
     try {
       const response = await fetch(endpoint, {
-        method,
+        method: "POST",
         headers: {
           'Content-Type': 'application/json',
         },
@@ -146,15 +143,8 @@ const CustomerDetailPage = ({ params }: { params: { id: string } }) => {
       }
 
       const updatedPreference: CustomerPreferences = await response.json();
-      
-      if (method === 'POST') {
-        setPreferences([...preferences, updatedPreference]);
-        toast.success(c('successCreate'));
-      } else {
-        setPreferences(preferences.map(p => (p.id === updatedPreference.id ? updatedPreference : p)));
-        toast.success(c('successUpdate'));
-      }
 
+      setPreferences([...preferences, updatedPreference]);
       setEditPreferenceId(null);
       setEditPreference(null);
     } catch (error) {
@@ -212,12 +202,6 @@ const CustomerDetailPage = ({ params }: { params: { id: string } }) => {
                   <p><strong>{cp('quantity')}:</strong> {preference.quantity}</p>
                   <div className="mt-4 flex space-x-2">
                     <button
-                      onClick={() => handleEditPreference(preference.id)}
-                      className="bg-yellow-500 text-white p-2 rounded hover:bg-yellow-700"
-                    >
-                      {c('edit')}
-                    </button>
-                    <button
                       onClick={() => handleDeletePreference(preference.id)}
                       className="bg-red-500 text-white p-2 rounded hover:bg-red-700"
                     >
@@ -234,9 +218,9 @@ const CustomerDetailPage = ({ params }: { params: { id: string } }) => {
       {/* Add New Preference */}
       <div className="w-1/3 pl-6 border-l border-gray-200">
         <h3 className="text-xl font-bold mt-6 text-blue-900">
-          {editPreferenceId ? cp('editPreference') : cp('addPreference')}
+          {cp('addPreference')}
         </h3>
-        
+
         <PreferenceForm
           products={products}
           customerId={customerId}

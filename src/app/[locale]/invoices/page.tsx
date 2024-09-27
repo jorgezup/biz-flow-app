@@ -5,6 +5,8 @@ import { useLocale, useTranslations } from 'next-intl';
 import apiUrl from '@/utils/api';
 import { Customer } from '@/types';
 import { FiDownload } from 'react-icons/fi';
+import 'react-toastify/dist/ReactToastify.css';
+import { toast, ToastContainer } from 'react-toastify';
 
 const InvoicesPage = () => {
   const t = useTranslations('invoices');
@@ -43,7 +45,7 @@ const InvoicesPage = () => {
   // Generate Invoice
   const generateInvoice = async () => {
     if (!selectedCustomerId || !startDate || !endDate) {
-      alert(t('fillAllFields'));
+      toast.info(common('fillAllFields'));
       return;
     }
 
@@ -53,12 +55,12 @@ const InvoicesPage = () => {
         { method: 'GET' }
       );
 
-      // if (!response.ok) throw new Error(t('invoiceGenerationFailed'));
       if (!response.ok) {
         const data = await response.json()
         throw new Error(data.message)
       }
 
+      toast.success(common('invoiceGenerated'));
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -73,6 +75,7 @@ const InvoicesPage = () => {
       document.body.removeChild(link);
     } catch (error: any) {
       setError(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -133,6 +136,7 @@ const InvoicesPage = () => {
 
         {error && <p className="text-red-500 text-center mt-4">{error}</p>}
       </div>
+      <ToastContainer />
     </div>
   );
 };

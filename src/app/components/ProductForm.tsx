@@ -44,7 +44,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData = {}, onSubmit })
       toast.success(c('successCreate'));
       setTimeout(() => {
         router.push(`/${locale}/products`);
-      }, 2000);
+      }, 1000);
     } catch (error) {
       toast.error(c('errorCreate'));
       console.error('Error creating product:', error);

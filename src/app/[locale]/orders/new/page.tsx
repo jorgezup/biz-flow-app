@@ -18,7 +18,9 @@ const CreateOrderPage = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
   const [customerInput, setCustomerInput] = useState<string>('');
   const [orderDetails, setOrderDetails] = useState<OrderDetail[]>([]);
-  const [orderDate, setOrderDate] = useState<string>(new Date().toISOString());
+  const [orderDate, setOrderDate] = useState<string>(
+    new Date().toISOString().slice(0, 10)
+  );
   // const [orderDate, setOrderDate] = useState<string>();
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -114,7 +116,6 @@ const CreateOrderPage = () => {
     };
 
     try {
-      console.log(payload)
       const response = await fetch(`${apiUrl}/orders`, {
         method: 'POST',
         headers: {
@@ -145,7 +146,7 @@ const CreateOrderPage = () => {
           list="customer-list"
           value={customerInput}
           onChange={handleCustomerChange}
-          className="p-2 border rounded w-full"
+          className="p-2 border rounded w-1/4"
           placeholder={common('selectCustomer')}
         />
         <datalist id="customer-list">
@@ -155,17 +156,17 @@ const CreateOrderPage = () => {
         </datalist>
       </div>
       <div className="mb-4">
-        <label className="block text-gray-700">{common('orderDate')}</label>
+        <label className="block text-gray-700">{t('orderDate')}</label>
         <input
           type="date"
           value={orderDate}
           onChange={(e) => setOrderDate(e.target.value)}
-          className="p-2 border rounded w-full"
+          className="p-2 border rounded w-1/4"
         />
       </div>
       <div className="mb-4">
         <label className="block text-gray-700">{common('products')}</label>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-5 gap-2">
           {products.map((product) => (
             <div key={product.productId} className="flex items-center">
               <button
@@ -243,7 +244,7 @@ const CreateOrderPage = () => {
           className={`bg-green-500 text-white p-2 rounded hover:bg-green-700 ${loading ? 'opacity-50' : ''}`}
           disabled={loading}
         >
-          {t('createOrder')}
+          {common('save')}
         </button>
       </div>
     </div>

@@ -51,7 +51,9 @@
     "next": "Next",
     "page": "Page",
     "of": "of",
-    "unit": "Unit"
+    "unit": "Unit",
+    "invoiceGenerated": "Invoice generated successfully!",
+    "fillAllFields":"Please fill all fields"
   },
   "index": {
     "title": "Welcome to BizFlow",
@@ -215,7 +217,9 @@
     "registerPayment": "Save payment",
     "noPendingPayments": "No pending payments",
     "payment": "Payment",
-    "noPaymentRegistered": "-"
+    "noPaymentRegistered": "-",
+    "paymentRegistered": "Payment registered successfully.",
+    "selectPaymentMethod": "Select Payment Method"
   },
   "orders": {
     "title": "Orders",
@@ -252,7 +256,9 @@
     "start": "Start",
     "end": "end",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "deleteOrder": "Delete Order",
+    "orderDeleted": "Order deleted successfully!"
   },
   "invoices": {
     "title": "Invoices",

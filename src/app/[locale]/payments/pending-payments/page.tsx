@@ -7,7 +7,9 @@ import { format } from 'date-fns';
 import { Customer, PaginatedResponse, Order, PaymentMethod } from '@/types';
 import formatCurrency from '@/utils/currency';
 import Pagination from '@/app/components/Pagination';
+import 'react-toastify/dist/ReactToastify.css';
 import { FiSave } from 'react-icons/fi';
+import { toast, ToastContainer } from 'react-toastify';
 
 const PaymentsPage = () => {
   const t = useTranslations('payments');
@@ -79,7 +81,7 @@ const PaymentsPage = () => {
       const paymentMethod = paymentMethods[orderId]; // Obtem o método de pagamento do estado
 
       if (!paymentMethod) {
-        alert('Selecione um método de pagamento');
+        toast.info(t('selectPaymentMethod'));
         return;
       }
 
@@ -88,7 +90,6 @@ const PaymentsPage = () => {
         paymentMethod,
         paymentDate: new Date().toISOString(),
       };
-      console.log(paymentData)
 
       await fetch(`${apiUrl}/payments`, {
         method: 'POST',
@@ -98,10 +99,11 @@ const PaymentsPage = () => {
         body: JSON.stringify(paymentData),
       });
 
-      alert('Payment registered successfully!');
+      toast.success(t('paymentRegistered'));	
       fetchPendingPayments(currentPage, pageSize, { customerId: selectedCustomerId, startDate, endDate });
     } catch (error: any) {
       setError(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -205,7 +207,7 @@ const PaymentsPage = () => {
                         <option value="">Selecione um método</option>
                         {Object.keys(PaymentMethod).map((method) => (
                           <option key={method} value={method}>
-                            {method}
+                            {t(`${method.toLocaleLowerCase()}`)}
                           </option>
                         ))}
                       </select>
@@ -237,6 +239,7 @@ const PaymentsPage = () => {
           }}
         />
       </div>
+      <ToastContainer />
     </div>
   );
 };

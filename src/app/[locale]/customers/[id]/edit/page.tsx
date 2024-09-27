@@ -69,7 +69,7 @@ const EditCustomerPage = ({ params }: { params: { id: string } }) => {
       toast.success(c('successUpdate'));
       setTimeout(() => {
         router.push(`/${locale}/customers`);
-      }, 2000);
+      }, 1000);
     } catch (error) {
       toast.error(c('errorUpdate'));
       console.error('Error updating customer:', error);

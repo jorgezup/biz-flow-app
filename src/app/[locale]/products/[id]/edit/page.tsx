@@ -6,6 +6,7 @@ import apiUrl from '@/utils/api';
 import { Product, ProductData } from '@/types';
 import { useTranslations } from 'next-intl';
 import ProductForm from '@/app/components/ProductForm';
+import { toast } from 'react-toastify';
 
 const EditProductPage = ({ params }: { params: { id: string } }) => {
   const { id } = params;
@@ -24,7 +25,7 @@ const EditProductPage = ({ params }: { params: { id: string } }) => {
           }
           const data: Product = await response.json();
           setProduct(data);
-        } catch (error) {
+        } catch (error: any) {
           console.error('Error fetching product:', error);
         }
       };

@@ -51,7 +51,9 @@
     "next": "Próximo",
     "page": "Página",
     "of": "de",
-    "unit": "unidade"
+    "unit": "unidade",
+    "invoiceGenerated": "Fatura gerada com sucesso!",
+    "fillAllFields":"Preencha todos os campos"
   },
   "index": {
     "title": "Bem-vindo ao BizFlow",
@@ -132,7 +134,7 @@
     "title": "Preferências do Cliente",
     "product": "Produto",
     "customer": "Cliente",
-    "preferredPurchaseDay": "Dias de Preferência",
+    "preferredPurchaseDay": "Dia de Preferência",
     "selectProduct": "Selecione um Produto",
     "preference": "Preferência",
     "loading": "Carregando preferências...",
@@ -219,7 +221,9 @@
     "registerPayment": "Salvar pagamento",
     "noPendingPayments": "Nenhum pagamento pendente",
     "payment": "Pagamento",
-    "noPaymentRegistered": "-"
+    "noPaymentRegistered": "-",
+    "paymentRegistered": "Pagamento salvo com sucesso!",
+    "selectPaymentMethod": "Selecione um método de pagamento"
   },
   "orders": {
     "title": "Pedidos",
@@ -243,8 +247,8 @@
     "productsConsumed": "Produtos Consumidos",
     "totalAmount": "Valor Total",
     "amount": "Valor",
-    "createNewOrder": "Lançar Pedido",
-    "createOrder": "Criar Pedido",
+    "createNewOrder": "Novo Pedido",
+    "createOrder": "Pedido",
     "customer": "Cliente",
     "generateOrders": "Gerar Pedidos",
     "day": "Dia",
@@ -256,7 +260,9 @@
     "start": "Início",
     "end": "Fim",
     "previous": "Anterior",
-    "next": "Próximo"
+    "next": "Próximo",
+    "deleteOrder": "Excluir Pedido",
+    "orderDeleted": "Excluído com sucesso!"
   },
   "invoices": {
     "title": "Faturas",

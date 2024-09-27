@@ -6,6 +6,7 @@ import { SaleDetail } from '@/types';
 import apiUrl from '@/utils/api';
 import { useLocale, useTranslations } from 'next-intl';
 import formatCurrency from '@/utils/currency';
+import { toast } from 'react-toastify';
 
 const EditSalePage = () => {
   const t = useTranslations('sales');
@@ -35,45 +36,34 @@ const EditSalePage = () => {
 
   const handleQuantityChange = (detailId: string, quantity: number) => {
     setSaleDetails((prevDetails) =>
-      prevDetails.map((detail) =>
-        detail.id === detailId
-          ? { ...detail, quantity, subtotal: quantity * detail.unitPrice }
-          : detail
-      )
+      prevDetails.map((detail) => {
+        // Verifica se unitPrice e quantity são válidos
+        const unitPrice = detail.unitPrice || 0;
+        const validQuantity = !isNaN(quantity) ? quantity : 0;
+        const subtotal = validQuantity * unitPrice;
+  
+        return detail.id === detailId
+          ? { ...detail, quantity: validQuantity, subtotal }
+          : detail;
+      })
     );
   };
-
+  
   const handleSubTotal = (detailId: string, subtotal: number) => {
     setSaleDetails((prevDetails) =>
-      prevDetails.map((detail) =>
-        detail.id === detailId
-          ? { ...detail, subtotal, quantity: subtotal / detail.unitPrice }
-          : detail
-      )
+      prevDetails.map((detail) => {
+        // Verifica se unitPrice e subtotal são válidos
+        const unitPrice = detail.unitPrice || 0;
+        const validSubtotal = !isNaN(subtotal) ? subtotal : 0;
+        const quantity = unitPrice !== 0 ? validSubtotal / unitPrice : 0;
+  
+        return detail.id === detailId
+          ? { ...detail, subtotal: validSubtotal, quantity }
+          : detail;
+      })
     );
   };
-
-  const handleRemoveProduct = async (detailId: string) => {
-    const confirmed = window.confirm(t('confirmDelete'));
-    if (!confirmed) return;
-
-    setSaleDetails((prevDetails) => prevDetails.filter((detail) => detail.id !== detailId));
-
-    try {
-      const response = await fetch(`${apiUrl}/order-details/${detailId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      if (!response.ok) {
-        console.error('Failed to remove product from sale');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
+  
 
   const handleSave = async () => {
     setLoading(true);
@@ -84,7 +74,7 @@ const EditSalePage = () => {
         subtotal: detail.subtotal,
         id: detail.id
       }));
-  
+
       // Envia todas as requisições em paralelo usando Promise.all
       const responses = await Promise.all(saleDetailsArray.map(orderDetail =>
         fetch(`${apiUrl}/order-details/${orderDetail.id}`, {
@@ -99,12 +89,15 @@ const EditSalePage = () => {
           }),
         })
       ));
-  
+
       // Verifica se todas as requisições foram bem-sucedidas
       const allSuccessful = responses.every(response => response.ok);
-  
+
       if (allSuccessful) {
-        router.push(`/${locale}/orders`);
+        toast.success(t('editSaleSuccess'));
+        setTimeout(() => {
+          router.push(`/${locale}/orders`);
+        }, 1000);
       } else {
         console.error('Failed to update one or more order details');
         // Opcional: iterar sobre `responses` e mostrar qual falhou
@@ -120,7 +113,7 @@ const EditSalePage = () => {
       setLoading(false);
     }
   };
-  
+
 
   if (loading) {
     return <div className="flex justify-center items-center h-screen">{common('loading')}</div>;
@@ -154,7 +147,6 @@ const EditSalePage = () => {
                 <th className="py-3 px-4 text-center">{sd('quantity')}</th>
                 <th className="py-3 px-4 text-right">{sd('unitPrice')}</th>
                 <th className="py-3 px-4 text-right">{sd('subtotal')}</th>
-                <th className="py-3 px-4 text-center">{common('actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -171,23 +163,15 @@ const EditSalePage = () => {
                     />
                   </td>
                   <td className="py-3 px-4 text-right">{formatCurrency(locale, detail.unitPrice)}</td>
-                  {/* <td className="py-3 px-4 text-right">{formatCurrency(locale, detail.subtotal)}</td> */}
                   <td className="py-3 px-4 text-right">
-                  <input
-                        type="number"
-                        value={detail.subtotal}
-                        onChange={(e) => handleSubTotal(detail.id, parseFloat(e.target.value))}
-                        className="p-2 border rounded w-20 text-center"
-                      />
+                    <input
+                      type="number"
+                      value={detail.subtotal}
+                      onChange={(e) => handleSubTotal(detail.id, parseFloat(e.target.value))}
+                      className="p-2 border rounded w-20 text-center"
+                    />
                   </td>
-                  <td className="py-3 px-4 text-center">
-                    <button
-                      onClick={() => handleRemoveProduct(detail.id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700 transition duration-300"
-                    >
-                      {common('delete')}
-                    </button>
-                  </td>
+
                 </tr>
               ))}
             </tbody>

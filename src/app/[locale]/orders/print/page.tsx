@@ -48,7 +48,7 @@ const PrintOrdersPage = () => {
           <td className="border py-2 px-4 text-center">{days(getDayOfWeek(order.orderDate))}</td>
           <td className="border py-2 px-4 text-center">{order.customerName}</td>
           <td className="border py-2 px-4 text-center">{product}</td>
-          <td className="border py-2 px-4 text-center">{order.quantity || '-'}</td>
+          <td className="border py-2 px-4 text-center">{order.quantity[index] || '-'}</td>
           <td className="border py-3 px-4 text-center">
             <input
               type="checkbox"

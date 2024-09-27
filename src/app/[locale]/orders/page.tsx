@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Chart } from 'react-google-charts';
 import apiUrl from '@/utils/api';
 import { Customer, Order, PaginatedResponse } from '@/types';
-import { FiEye, FiPrinter, FiSave } from 'react-icons/fi';
+import { FiDelete, FiEye, FiPrinter, FiSave } from 'react-icons/fi';
 import Link from 'next/link';
 import formatCurrency from '@/utils/currency';
 import { noSSR } from 'next/dynamic';
@@ -159,7 +159,7 @@ const OrderPage = () => {
   const handleStatusChange = async (orderId: string) => {
     const newStatus = editableStatus[orderId];
     try {
-      const response = await fetch(`${apiUrl}/orders?id=${orderId}`, {
+      const response = await fetch(`${apiUrl}/orders/${orderId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
@@ -175,12 +175,31 @@ const OrderPage = () => {
           order.id === orderId ? { ...order, status: newStatus } : order
         )
       );
-
+      fetchOrders(currentPage, pageSize, sortColumn, sortDirection, { customerId: selectedCustomerId, status: statusFilter, startDate, endDate });
       toast.success(t('statusUpdated'));
     } catch (error: any) {
       toast.error(error.message);
     }
   };
+
+  const handleDeleteOrder = async (orderId: string) => {
+    try {
+      const response = await fetch(`${apiUrl}/orders/${orderId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const {message} = await response.json();
+        throw new Error('Failed to delete order! ' + message);
+      }
+
+      setOrders(prevOrders => prevOrders.filter(order => order.id !== orderId));
+      fetchOrders(currentPage, pageSize, sortColumn, sortDirection, { customerId: selectedCustomerId, status: statusFilter, startDate, endDate });
+      toast.success(t('orderDeleted'));
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  }
 
   const handlePrint = (order: Order) => {
     setPrintList(prevList => {
@@ -217,7 +236,8 @@ const OrderPage = () => {
       });
 
       if (!response.ok) {
-        throw new Error(m('errorGeneratingOrders'));
+        const { message } = await response.json();
+        throw new Error(m('errorGeneratingOrders') + message);
       }
 
       fetchOrders(currentPage, pageSize, sortColumn, sortDirection, { customerId: selectedCustomerId, status: statusFilter, startDate, endDate });
@@ -257,7 +277,7 @@ const OrderPage = () => {
         {/* Seletor de Cliente */}
         <div className="mb-6 w-full flex space-x-4">
           <div className="space-x-2 flex-1 flex items-center">
-            <select onChange={(e) => setSelectedCustomerId(e.target.value)} className="p-2 border rounded w-2/4">
+            <select onChange={(e) => setSelectedCustomerId(e.target.value)} className="p-2 border rounded w-1/4">
               <option value="">{t('selectCustomer')}</option>
               {customers.map((customer: Customer) => (
                 <option key={customer.customerId} value={customer.customerId}>
@@ -343,11 +363,11 @@ const OrderPage = () => {
                 {filteredOrders?.map((order) => (
                   <tr key={order.id} className="border-b hover:bg-gray-100">
                     <td className=" py-3 px-4 text-center">
-                    {getCustomerName(customers, order.customerId)}
+                      {getCustomerName(customers, order.customerId)}
                     </td>
                     <td className=" py-3 px-4 text-center">
-                      {order.products.map(product => (
-                        <div key={product}>{product}</div>
+                      {order.products.map((product: string, index: number) => (
+                        <div key={`${order.id}-${index}`}>{product}</div>
                       ))}
                     </td>
                     <td className=" py-3 px-4 text-center">{new Date(order.orderDate).toLocaleDateString(locale, {
@@ -355,7 +375,9 @@ const OrderPage = () => {
                       month: '2-digit',
                       day: '2-digit'
                     })}</td>
-                    <td className=" py-3 px-4 text-center">{t(order.status.toLowerCase())}</td>
+                    <td className={` py-3 px-4 text-center ${order.status === 'Completed' ? 'bg-green-300' : order.status === 'Cancelled' ? 'bg-red-300' : ''}`}>
+                      {t(order.status.toLowerCase())}
+                    </td>
                     <td className=" py-3 px-4 text-center">{formatCurrency(locale, order.totalAmount)}</td>
                     <td className=" py-3 px-4 text-center">
                       <div className="flex justify-center space-x-2 items-center">
@@ -381,6 +403,12 @@ const OrderPage = () => {
                         >
                           <FiEye title={common('view')} />
                         </a>
+                        <button
+                          onClick={() => handleDeleteOrder(order.id)}
+                          className="p-2 text-blue-500 hover:text-blue-900"
+                        >
+                          <FiDelete title={t('deleteOrder')} />
+                        </button>
                       </div>
                     </td>
                     <td className="py-3 px-4 text-center">
@@ -419,5 +447,3 @@ const OrderPage = () => {
 };
 
 export default OrderPage;
-
-

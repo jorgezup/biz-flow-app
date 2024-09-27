@@ -28,6 +28,7 @@ const PreferenceForm = ({
 
   const cp = useTranslations('customerPreferences');
   const days = useTranslations('days');
+  const common = useTranslations('common');
 
   // Update form fields when existingPreference changes
   useEffect(() => {
@@ -57,9 +58,9 @@ const PreferenceForm = ({
       setSelectedProductId('');
       setPreferredPurchaseDay('');
       setQuantity('');
-      toast.success(cp(editPreferenceId ? 'successUpdate' : 'successCreate'));
+      toast.success(common(editPreferenceId ? 'successUpdate' : 'successCreate'));
     } catch (error) {
-      toast.error(cp('errorUpdate'));
+      toast.error(common('errorUpdate'));
       console.error('Error saving preference:', error);
     }
   };
