@@ -53,7 +53,8 @@
     "of": "de",
     "unit": "unidade",
     "invoiceGenerated": "Fatura gerada com sucesso!",
-    "fillAllFields":"Preencha todos os campos"
+    "fillAllFields":"Preencha todos os campos",
+    "generatingInvoice": "Gerando Fatura..."	
   },
   "index": {
     "title": "Bem-vindo ao BizFlow",

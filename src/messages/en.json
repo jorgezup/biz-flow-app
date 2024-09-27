@@ -53,7 +53,8 @@
     "of": "of",
     "unit": "Unit",
     "invoiceGenerated": "Invoice generated successfully!",
-    "fillAllFields":"Please fill all fields"
+    "fillAllFields":"Please fill all fields",
+    "generatingInvoice": "Generating Invoice..."
   },
   "index": {
     "title": "Welcome to BizFlow",

@@ -20,6 +20,7 @@ const InvoicesPage = () => {
   const [endDate, setEndDate] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loadingInvoice, setLoadingInvoice] = useState<boolean>(false);
 
   // Fetch customers
   const fetchCustomers = async () => {
@@ -42,12 +43,15 @@ const InvoicesPage = () => {
     fetchCustomers().finally(() => setLoading(false));
   }, []);
 
-  // Generate Invoice
   const generateInvoice = async () => {
     if (!selectedCustomerId || !startDate || !endDate) {
       toast.info(common('fillAllFields'));
       return;
     }
+
+    // Inicie o carregamento
+    setLoadingInvoice(true);
+    toast.info(common('generatingInvoice')); // Exibe um toast informando que a fatura está sendo gerada
 
     try {
       const response = await fetch(
@@ -56,8 +60,8 @@ const InvoicesPage = () => {
       );
 
       if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.message)
+        const data = await response.json();
+        throw new Error(data.message);
       }
 
       toast.success(common('invoiceGenerated'));
@@ -76,8 +80,12 @@ const InvoicesPage = () => {
     } catch (error: any) {
       setError(error.message);
       toast.error(error.message);
+    } finally {
+      // Pare o carregamento
+      setLoadingInvoice(false);
     }
   };
+
 
   if (loading) {
     return <div className="flex justify-center items-center h-screen">{common('loading')}</div>;
@@ -128,11 +136,19 @@ const InvoicesPage = () => {
           <button
             onClick={generateInvoice}
             className="bg-blue-500 text-white px-6 py-2 rounded shadow hover:bg-blue-700 transition"
+            disabled={loadingInvoice}
           >
-            <FiDownload className="inline mr-2" />
-            {t('generateInvoice')}
+            {loadingInvoice ? (
+              <span>{common('generatingInvoice')}...</span>
+            ) : (
+              <>
+                <FiDownload className="inline mr-2" />
+                {t('generateInvoice')}
+              </>
+            )}
           </button>
         </div>
+
 
         {error && <p className="text-red-500 text-center mt-4">{error}</p>}
       </div>
