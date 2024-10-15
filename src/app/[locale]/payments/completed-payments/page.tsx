@@ -8,13 +8,14 @@ import { Customer, PaginatedResponse, Payment } from '@/types';
 import formatCurrency from '@/utils/currency';
 import Pagination from '@/app/components/Pagination';
 import { getCustomerName } from '@/utils/utils';
+import CustomerSelect from '@/app/components/CustomerSelect';
 
 const CompletedPaymentsPage = () => {
   const t = useTranslations('payments');
   const common = useTranslations('common');
   const locale = useLocale();
 
-  // State management
+  // Gerenciamento de estado
   const [payments, setPayments] = useState<Payment[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [startDate, setStartDate] = useState<string>('');
@@ -22,12 +23,12 @@ const CompletedPaymentsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalPayments, setTotalPayments] = useState(0);
 
-  // Fetch customers
+  // Buscar clientes
   const fetchCustomers = async () => {
     try {
       const customersResponse = await fetch(`${apiUrl}/customers`);
@@ -39,7 +40,7 @@ const CompletedPaymentsPage = () => {
     }
   };
 
-  // Fetch completed payments with filters and pagination
+  // Buscar pagamentos concluídos com filtros e paginação
   const fetchCompletedPayments = async (
     page: number,
     pageSize: number,
@@ -63,23 +64,24 @@ const CompletedPaymentsPage = () => {
     }
   };
 
-  // Handle page change
+  // Manipular mudança de página
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
-    fetchCompletedPayments(newPage, pageSize, { customerId: selectedCustomerId, startDate, endDate });
+    fetchCompletedPayments(newPage, pageSize, { customerId: selectedCustomer?.customerId, startDate, endDate });
   };
 
   const handlePageSizeChange = (size: number) => {
     setPageSize(size);
     setCurrentPage(1);
+    fetchCompletedPayments(1, size, { customerId: selectedCustomer?.customerId, startDate, endDate });
   };
 
-  // Fetch customers and completed payments on initial load and when filters change
+  // Buscar clientes e pagamentos concluídos ao carregar e quando os filtros mudarem
   useEffect(() => {
     const fetchData = async () => {
       try {
         await fetchCustomers();
-        await fetchCompletedPayments(currentPage, pageSize, { customerId: selectedCustomerId, startDate, endDate });
+        await fetchCompletedPayments(currentPage, pageSize, { customerId: selectedCustomer?.customerId, startDate, endDate });
       } catch (error: any) {
         setError(error.message);
       } finally {
@@ -87,7 +89,7 @@ const CompletedPaymentsPage = () => {
       }
     };
     fetchData();
-  }, [currentPage, pageSize, selectedCustomerId, startDate, endDate]);
+  }, [currentPage, pageSize, selectedCustomer, startDate, endDate]);
 
   if (loading) {
     return <div className="flex justify-center items-center h-screen">{common('loading')}</div>;
@@ -98,41 +100,46 @@ const CompletedPaymentsPage = () => {
       <h1 className="text-3xl font-bold text-blue-900 mb-6 text-center">{t('completedPayments')}</h1>
 
       <div className="bg-white shadow-md rounded-lg overflow-hidden p-6">
-        {/* Filters Section */}
+        {/* Seção de Filtros */}
         <div className="mb-6 flex space-x-4 items-center">
-          {/* Customer Selector */}
-          <select
-            onChange={(e) => setSelectedCustomerId(e.target.value)}
-            className="p-2 border rounded w-1/3"
-          >
-            <option value="">{t('selectCustomer')}</option>
-            {customers?.map((customer: Customer) => (
-              <option key={customer.customerId} value={customer.customerId}>
-                {customer.name}
-              </option>
-            ))}
-          </select>
+          {/* Seletor de Cliente */}
+          <div className="w-1/3">
+            <CustomerSelect
+              customers={customers}
+              value={selectedCustomer}
+              onChange={(customer) => {
+                setSelectedCustomer(customer);
+                setCurrentPage(1); // Resetar para a primeira página ao mudar o cliente
+              }}
+            />
+          </div>
 
           <div className="w-2/3 flex space-x-4 items-center">
-            {/* Date Filters */}
+            {/* Filtros de Data */}
             <label htmlFor="start">{t('start')}</label>
             <input
               type="date"
               value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+              onChange={(e) => {
+                setStartDate(e.target.value);
+                setCurrentPage(1);
+              }}
               className="p-2 border rounded w-1/2 text-center"
             />
             <label htmlFor="end">{t('end')}</label>
             <input
               type="date"
               value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
+              onChange={(e) => {
+                setEndDate(e.target.value);
+                setCurrentPage(1);
+              }}
               className="p-2 border rounded w-1/2 text-center"
             />
           </div>
         </div>
 
-        {/* Completed Payments Table */}
+        {/* Tabela de Pagamentos Concluídos */}
         {payments.length === 0 ? (
           <p className="text-red-500 text-center p-8">{t('noCompletedPayments')}</p>
         ) : (
@@ -154,7 +161,7 @@ const CompletedPaymentsPage = () => {
                       {format(new Date(payment.paymentDate), locale === 'en' ? 'MM/dd/yyyy' : 'dd/MM/yyyy')}
                     </td>
                     <td className="py-3 px-4 text-center">{formatCurrency(locale, payment.amount)}</td>
-                    <td className="py-3 px-4 text-center">{t(`${payment.paymentMethod.toLocaleLowerCase()}`)}</td>
+                    <td className="py-3 px-4 text-center">{t(`${payment.paymentMethod.toLowerCase()}`)}</td>
                   </tr>
                 ))}
               </tbody>

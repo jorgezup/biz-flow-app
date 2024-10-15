@@ -7,6 +7,7 @@ import { Customer } from '@/types';
 import { FiDownload } from 'react-icons/fi';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast, ToastContainer } from 'react-toastify';
+import CustomerSelect from '@/app/components/CustomerSelect';
 
 const InvoicesPage = () => {
   const t = useTranslations('invoices');
@@ -15,7 +16,7 @@ const InvoicesPage = () => {
 
   // State management
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [loading, setLoading] = useState(true);
@@ -34,28 +35,23 @@ const InvoicesPage = () => {
     }
   };
 
-  const handleSelectedCustomerId = (customerId: string) => {
-    setSelectedCustomerId(customerId);
-    setError(null);
-  }
-
   useEffect(() => {
     fetchCustomers().finally(() => setLoading(false));
   }, []);
 
   const generateInvoice = async () => {
-    if (!selectedCustomerId || !startDate || !endDate) {
+    if (!selectedCustomer || !startDate || !endDate) {
       toast.info(common('fillAllFields'));
       return;
     }
 
-    // Inicie o carregamento
+    // Start loading
     setLoadingInvoice(true);
-    toast.info(common('generatingInvoice')); // Exibe um toast informando que a fatura está sendo gerada
+    toast.info(common('generatingInvoice')); // Display a toast indicating that the invoice is being generated
 
     try {
       const response = await fetch(
-        `${apiUrl}/invoices/generate-invoice?customerId=${selectedCustomerId}&startDate=${startDate}&endDate=${endDate}&language=${locale}`,
+        `${apiUrl}/invoices/generate-invoice?customerId=${selectedCustomer.customerId}&startDate=${startDate}&endDate=${endDate}&language=${locale}`,
         { method: 'GET' }
       );
 
@@ -71,17 +67,17 @@ const InvoicesPage = () => {
       const link = document.createElement('a');
       link.href = url;
 
-      // Nome do arquivo com base no cliente e período
+      // Generate file name based on customer and period
       const formatInvoiceDate = (date: string): string => {
         const day = date.slice(8, 10);
         const month = date.slice(5, 7);
         const year = date.slice(0, 4);
         return `${day}-${month}-${year}`;
-      }
+      };
       const startDateFormatted = formatInvoiceDate(startDate);
       const endDateFormatted = formatInvoiceDate(endDate);
-      
-      const customerName = customers.find(c => c.customerId === selectedCustomerId)?.name.replace(/ /g, '_');
+
+      const customerName = selectedCustomer.name.replace(/ /g, '_');
       link.download = `${customerName}_${startDateFormatted}_${endDateFormatted}.pdf`;
       document.body.appendChild(link);
       link.click();
@@ -90,11 +86,10 @@ const InvoicesPage = () => {
       setError(error.message);
       toast.error(error.message);
     } finally {
-      // Pare o carregamento
+      // Stop loading
       setLoadingInvoice(false);
     }
   };
-
 
   if (loading) {
     return <div className="flex justify-center items-center h-screen">{common('loading')}</div>;
@@ -108,18 +103,16 @@ const InvoicesPage = () => {
         {/* Filters Section */}
         <div className="mb-6 flex space-x-4 items-center">
           {/* Customer Selector */}
-          <select
-            value={selectedCustomerId}
-            onChange={(e) => handleSelectedCustomerId(e.target.value)}
-            className="p-2 border rounded w-1/3"
-          >
-            <option value="">{t('selectCustomer')}</option>
-            {customers?.map((customer: Customer) => (
-              <option key={customer.customerId} value={customer.customerId}>
-                {customer.name}
-              </option>
-            ))}
-          </select>
+          <div className="w-1/3">
+            <CustomerSelect
+              customers={customers}
+              value={selectedCustomer}
+              onChange={(customer) => {
+                setSelectedCustomer(customer);
+                setError(null);
+              }}
+            />
+          </div>
 
           <div className="w-2/3 flex space-x-4 items-center">
             {/* Date Filters */}
@@ -151,7 +144,6 @@ const InvoicesPage = () => {
             {t('generateInvoice')}
           </button>
         </div>
-
 
         {error && <p className="text-red-500 text-center mt-4">{error}</p>}
       </div>

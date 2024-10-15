@@ -10,6 +10,7 @@ import Pagination from '@/app/components/Pagination';
 import 'react-toastify/dist/ReactToastify.css';
 import { FiSave } from 'react-icons/fi';
 import { toast, ToastContainer } from 'react-toastify';
+import CustomerSelect from '@/app/components/CustomerSelect';
 
 const PaymentsPage = () => {
   const t = useTranslations('payments');
@@ -24,7 +25,7 @@ const PaymentsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [paymentMethods, setPaymentMethods] = useState<{ [orderId: string]: string }>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -58,7 +59,7 @@ const PaymentsPage = () => {
 
       const response = await fetch(`${apiUrl}/payments/pending-payments?${query}`);
       if (!response.ok) throw new Error('Failed to fetch pending payments');
-      const { data, result, totalRecords }: PaginatedResponse = await response.json();
+      const { result, totalRecords }: PaginatedResponse = await response.json();
 
       setOrders(result.orders);
       setTotalPendingAmount(result.totalPendingAmount);
@@ -71,14 +72,14 @@ const PaymentsPage = () => {
   const handlePaymentMethodChange = (orderId: string, method: string) => {
     setPaymentMethods((prevMethods) => ({
       ...prevMethods,
-      [orderId]: method, // Atualiza o método de pagamento para o pedido específico
+      [orderId]: method,
     }));
   };
 
   // Register a payment
   const registerPayment = async (orderId: string) => {
     try {
-      const paymentMethod = paymentMethods[orderId]; // Obtem o método de pagamento do estado
+      const paymentMethod = paymentMethods[orderId];
 
       if (!paymentMethod) {
         toast.info(t('selectPaymentMethod'));
@@ -99,8 +100,12 @@ const PaymentsPage = () => {
         body: JSON.stringify(paymentData),
       });
 
-      toast.success(t('paymentRegistered'));	
-      fetchPendingPayments(currentPage, pageSize, { customerId: selectedCustomerId, startDate, endDate });
+      toast.success(t('paymentRegistered'));
+      fetchPendingPayments(currentPage, pageSize, {
+        customerId: selectedCustomer?.customerId,
+        startDate,
+        endDate,
+      });
     } catch (error: any) {
       setError(error.message);
       toast.error(error.message);
@@ -110,12 +115,21 @@ const PaymentsPage = () => {
   // Handle page change
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
-    fetchPendingPayments(newPage, pageSize, { customerId: selectedCustomerId, startDate, endDate });
+    fetchPendingPayments(newPage, pageSize, {
+      customerId: selectedCustomer?.customerId,
+      startDate,
+      endDate,
+    });
   };
 
   const handlePageSizeChange = (size: number) => {
     setPageSize(size);
     setCurrentPage(1);
+    fetchPendingPayments(1, size, {
+      customerId: selectedCustomer?.customerId,
+      startDate,
+      endDate,
+    });
   };
 
   // Fetch customers and pending payments on initial load and when filters change
@@ -123,7 +137,11 @@ const PaymentsPage = () => {
     const fetchData = async () => {
       try {
         await fetchCustomers();
-        await fetchPendingPayments(currentPage, pageSize, { customerId: selectedCustomerId, startDate, endDate });
+        await fetchPendingPayments(currentPage, pageSize, {
+          customerId: selectedCustomer?.customerId,
+          startDate,
+          endDate,
+        });
       } catch (error: any) {
         setError(error.message);
       } finally {
@@ -131,31 +149,36 @@ const PaymentsPage = () => {
       }
     };
     fetchData();
-  }, [currentPage, pageSize, selectedCustomerId, startDate, endDate]);
+  }, [currentPage, pageSize, selectedCustomer, startDate, endDate]);
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen">{common('loading')}</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        {common('loading')}
+      </div>
+    );
   }
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold text-blue-900 mb-6 text-center">{t('pendingPaymentsTitle')}</h1>
+      <h1 className="text-3xl font-bold text-blue-900 mb-6 text-center">
+        {t('pendingPaymentsTitle')}
+      </h1>
 
       <div className="bg-white shadow-md rounded-lg overflow-hidden p-6">
         {/* Filters Section */}
         <div className="mb-6 flex space-x-4 items-center">
           {/* Customer Selector */}
-          <select
-            onChange={(e) => setSelectedCustomerId(e.target.value)}
-            className="p-2 border rounded w-1/3"
-          >
-            <option value="">{t('selectCustomer')}</option>
-            {customers?.map((customer: Customer) => (
-              <option key={customer.customerId} value={customer.customerId}>
-                {customer.name}
-              </option>
-            ))}
-          </select>
+          <div className="w-1/3">
+            <CustomerSelect
+              customers={customers}
+              value={selectedCustomer}
+              onChange={(customer) => {
+                setSelectedCustomer(customer);
+                setCurrentPage(1);
+              }}
+            />
+          </div>
 
           <div className="w-2/3 flex space-x-4 items-center">
             {/* Date Filters */}
@@ -163,14 +186,20 @@ const PaymentsPage = () => {
             <input
               type="date"
               value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+              onChange={(e) => {
+                setStartDate(e.target.value);
+                setCurrentPage(1);
+              }}
               className="p-2 border rounded w-1/2 text-center"
             />
             <label htmlFor="end">{t('end')}</label>
             <input
               type="date"
               value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
+              onChange={(e) => {
+                setEndDate(e.target.value);
+                setCurrentPage(1);
+              }}
               className="p-2 border rounded w-1/2 text-center"
             />
           </div>
@@ -195,16 +224,23 @@ const PaymentsPage = () => {
                   <tr key={order.id} className="border-b hover:bg-gray-100">
                     <td className="py-3 px-24">{order.customerName}</td>
                     <td className="py-3 px-4">
-                      {format(new Date(order.orderDate), locale === 'en' ? 'MM/dd/yyyy' : 'dd/MM/yyyy')}
+                      {format(
+                        new Date(order.orderDate),
+                        locale === 'en' ? 'MM/dd/yyyy' : 'dd/MM/yyyy'
+                      )}
                     </td>
-                    <td className="py-3 px-4 text-center">{formatCurrency(locale, order.totalAmount)}</td>
+                    <td className="py-3 px-4 text-center">
+                      {formatCurrency(locale, order.totalAmount)}
+                    </td>
                     <td className="py-3 px-4 text-center">
                       <select
-                        value={paymentMethods[order.id] || ''} // Obtem o valor atual do método de pagamento do estado
-                        onChange={(e) => handlePaymentMethodChange(order.id, e.target.value)} // Atualiza o estado quando mudar
+                        value={paymentMethods[order.id] || ''}
+                        onChange={(e) =>
+                          handlePaymentMethodChange(order.id, e.target.value)
+                        }
                         className="ml-2 border p-1 text-center rounded"
                       >
-                        <option value="">Selecione um método</option>
+                        <option value="">{t('selectPaymentMethod')}</option>
                         {Object.keys(PaymentMethod).map((method) => (
                           <option key={method} value={method}>
                             {t(`${method.toLocaleLowerCase()}`)}
@@ -212,7 +248,7 @@ const PaymentsPage = () => {
                         ))}
                       </select>
                       <button
-                        onClick={() => registerPayment(order.id)} // Usa o método de pagamento do estado para aquele pedido
+                        onClick={() => registerPayment(order.id)}
                         className="text-blue-500 px-3 py-1 rounded hover:text-blue-900 transition"
                       >
                         <FiSave />

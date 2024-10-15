@@ -23,13 +23,12 @@ const PaymentsPage = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
 
   // Fetch pending payments data
-  const fetchPendingPayments = async (page: number, pageSize: number) => {
+  const fetchPendingPayments = async () => {
     try {
-      const query = `page=${page}&pageSize=${pageSize}`;
-      const response = await fetch(`${apiUrl}/payments/pending-payments?${query}`);
+      const response = await fetch(`${apiUrl}/payments/pending-payments`);
       if (!response.ok) throw new Error('Failed to fetch pending payments');
 
-      const { result, totalRecords }: PaginatedResponse = await response.json();
+      const result = await response.json();
       setPendingPayments(result.customerPendingPayment);
       setTotalPendingAmount(result.totalPendingAmount);
       setTotalRecords(totalRecords);
@@ -52,22 +51,13 @@ const PaymentsPage = () => {
     }
   }
 
-  // Handle page change
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
-    fetchPendingPayments(newPage, pageSize);
-  };
 
-  const handlePageSizeChange = (size: number) => {
-    setPageSize(size);
-    setCurrentPage(1); // Reset to first page after page size change
-  };
 
   // Fetch pending payments on initial load and when relevant state changes
   useEffect(() => {
-    fetchPendingPayments(currentPage, pageSize);
+    fetchPendingPayments();
     fetchCustomers();
-  }, [currentPage, pageSize]);
+  }, []);
 
   if (loading) {
     return <div className="flex justify-center items-center h-screen">{common('loading')}</div>;
@@ -125,21 +115,6 @@ const PaymentsPage = () => {
           </div>
         </div>
       )}
-
-      {/* Pagination */}
-      <Pagination
-        currentPage={currentPage}
-        totalItems={totalRecords}
-        pageSize={pageSize}
-        onPageChange={handlePageChange}
-        onPageSizeChange={handlePageSizeChange}
-        translations={{
-          previous: common('previous'),
-          next: common('next'),
-          page: common('page'),
-          of: common('of'),
-        }}
-      />
     </div>
   );
 };

@@ -8,6 +8,7 @@ import { Customer, PaginatedResponse, Order } from '@/types';
 import formatCurrency from '@/utils/currency';
 import Pagination from '@/app/components/Pagination';
 import { getPaymentMethod } from '@/utils/utils';
+import CustomerSelect from '@/app/components/CustomerSelect';
 
 const SalesPage = () => {
   const t = useTranslations('sales');
@@ -18,12 +19,12 @@ const SalesPage = () => {
   // State management
   const [sales, setSales] = useState<Order[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
   const [sortColumn, setSortColumn] = useState<string>('OrderDate');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [currentPage, setCurrentPage] = useState(1);
@@ -72,22 +73,30 @@ const SalesPage = () => {
   // Handle page change
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
-    fetchSales(newPage, pageSize, sortColumn, sortDirection, { customerId: selectedCustomerId, startDate, endDate });
+    fetchSales(newPage, pageSize, sortColumn, sortDirection, {
+      customerId: selectedCustomer?.customerId,
+      startDate,
+      endDate,
+    });
   };
 
   const handlePageSizeChange = (size: number) => {
     setPageSize(size);
-    setCurrentPage(1); // Reset to first page after page size change
-    // Fetch data based on the new page size
+    setCurrentPage(1); // Resetar para a primeira página após mudar o tamanho da página
+    fetchSales(1, size, sortColumn, sortDirection, {
+      customerId: selectedCustomer?.customerId,
+      startDate,
+      endDate,
+    });
   };
-  
+
   // Fetch customers and sales on initial load and when relevant state changes
   useEffect(() => {
     const fetchData = async () => {
       try {
         await fetchCustomers();
         await fetchSales(currentPage, pageSize, sortColumn, sortDirection, {
-          customerId: selectedCustomerId,
+          customerId: selectedCustomer?.customerId,
           startDate,
           endDate,
         });
@@ -98,7 +107,7 @@ const SalesPage = () => {
       }
     };
     fetchData();
-  }, [currentPage, pageSize, sortColumn, sortDirection, selectedCustomerId, startDate, endDate]);
+  }, [currentPage, pageSize, sortColumn, sortDirection, selectedCustomer, startDate, endDate]);
 
   if (loading) {
     return <div className="flex justify-center items-center h-screen">{common('loading')}</div>;
@@ -112,32 +121,37 @@ const SalesPage = () => {
         {/* Filters Section */}
         <div className="mb-6 flex space-x-4 items-center">
           {/* Customer Selector */}
-          <select
-            onChange={(e) => setSelectedCustomerId(e.target.value)}
-            className="p-2 border rounded w-1/3"
-          >
-            <option value="">{t('selectCustomer')}</option>
-            {customers?.map((customer: Customer) => (
-              <option key={customer.customerId} value={customer.customerId}>
-                {customer.name}
-              </option>
-            ))}
-          </select>
+          <div className="w-1/2">
+            <CustomerSelect
+              customers={customers}
+              value={selectedCustomer}
+              onChange={(customer) => {
+                setSelectedCustomer(customer);
+                setCurrentPage(1); // Resetar para a primeira página ao mudar o cliente
+              }}
+            />
+          </div>
 
-          <div className='w-2/3 flex space-x-4 items-center'>
+          <div className="w-2/3 flex space-x-4 items-center">
             {/* Date Filters */}
             <label htmlFor="start">{t('start')}</label>
             <input
               type="date"
               value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+              onChange={(e) => {
+                setStartDate(e.target.value);
+                setCurrentPage(1);
+              }}
               className="p-2 border rounded w-1/2 text-center"
             />
             <label htmlFor="end">{t('end')}</label>
             <input
               type="date"
               value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
+              onChange={(e) => {
+                setEndDate(e.target.value);
+                setCurrentPage(1);
+              }}
               className="p-2 border rounded w-1/2 text-center"
             />
           </div>
@@ -192,7 +206,7 @@ const SalesPage = () => {
             previous: common('previous'),
             next: common('next'),
             page: common('page'),
-            of: common('of')
+            of: common('of'),
           }}
         />
       </div>

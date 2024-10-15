@@ -29,7 +29,7 @@
     "noProductsSelected": "Nenhum produto selecionado",
     "print": "Imprimir",
     "saveChanges": "Salvar Alterações",
-    "selectCustomer": "Selecionar o Cliente",
+    "selectCustomer": "Selecione um cliente...",
     "orderDate": "Data da Venda",
     "productName": "Nome do Produto",
     "quantity": "Quantidade",
@@ -53,8 +53,8 @@
     "of": "de",
     "unit": "unidade",
     "invoiceGenerated": "Fatura gerada com sucesso!",
-    "fillAllFields":"Preencha todos os campos",
-    "generatingInvoice": "Gerando Fatura..."	
+    "fillAllFields": "Preencha todos os campos",
+    "generatingInvoice": "Gerando Fatura..."
   },
   "index": {
     "title": "Bem-vindo ao BizFlow",
@@ -224,7 +224,8 @@
     "payment": "Pagamento",
     "noPaymentRegistered": "-",
     "paymentRegistered": "Pagamento salvo com sucesso!",
-    "selectPaymentMethod": "Selecione um método de pagamento"
+    "selectPaymentMethod": "Selecione um método de pagamento",
+    "noCompletedPayments": "Nenhum pagamento concluído"
   },
   "orders": {
     "title": "Pedidos",
