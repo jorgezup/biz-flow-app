@@ -33,7 +33,7 @@ body {
 @media print {
   @page {
     size: landscape;
-    margin: 0mm;
+    margin: 4mm;
     padding: 0;
   }
   body {
@@ -66,5 +66,8 @@ body {
   .container {
     box-shadow: none;
     padding: 0;
+  }
+  .break-before-page {
+    page-break-before: always;
   }
 }

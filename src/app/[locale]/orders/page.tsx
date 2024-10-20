@@ -205,10 +205,13 @@ const OrderPage = () => {
   };
 
   const handlePrintRedirect = () => {
-    router.push(
-      `/${locale}/orders/print?orders=${encodeURIComponent(JSON.stringify(printList))}`
-    );
+    // Armazena os dados no localStorage
+    localStorage.setItem('printOrders', JSON.stringify(printList));
+  
+    // Redireciona para a página de impressão
+    router.push(`/${locale}/orders/print`);
   };
+  
 
   const handleSelectAllForPrint = () => {
     if (allSelected) {
