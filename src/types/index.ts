@@ -94,6 +94,9 @@ export interface Order {
   generated: boolean;
   status: string;
   paymentMethod: string | undefined;
+  unitPrice: number;
+  subtotal: number[];
+  paid?: boolean;
 }
 
 export interface PaginatedResponse {

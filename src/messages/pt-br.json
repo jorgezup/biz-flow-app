@@ -54,7 +54,13 @@
     "unit": "unidade",
     "invoiceGenerated": "Fatura gerada com sucesso!",
     "fillAllFields": "Preencha todos os campos",
-    "generatingInvoice": "Gerando Fatura..."
+    "generatingInvoice": "Gerando Fatura...",
+    "product": "Produto",
+    "subtotal": "Subtotal",
+    "cancel": "Cancelar",
+    "startDate": "Data de Início",
+    "endDate": "Data de Fim",
+    "total": "Total"
   },
   "index": {
     "title": "Bem-vindo ao BizFlow",
@@ -224,8 +230,18 @@
     "payment": "Pagamento",
     "noPaymentRegistered": "-",
     "paymentRegistered": "Pagamento salvo com sucesso!",
-    "selectPaymentMethod": "Selecione um método de pagamento",
-    "noCompletedPayments": "Nenhum pagamento concluído"
+    "selectPaymentMethod": "Pagamento",
+    "noCompletedPayments": "Nenhum pagamento concluído",
+    "summary": "Resumo",
+    "product": "Produto",
+    "totalQuantity": "Quantidade Total",
+    "totalAmount": "Valor Total",
+    "orderDate": "Data do Pedido",
+    "payAllOrders": "Pagar Todos os Pedidos",
+    "processing": "Processando...",
+    "paymentsRegistered": "Pagamentos registrados com sucesso!",
+    "status": "Status",
+    "pending": "Pendente"
   },
   "orders": {
     "title": "Pedidos",
@@ -264,7 +280,8 @@
     "previous": "Anterior",
     "next": "Próximo",
     "deleteOrder": "Excluir Pedido",
-    "orderDeleted": "Excluído com sucesso!"
+    "orderDeleted": "Excluído com sucesso!",
+    "productSummary": "Resumo de Produtos"
   },
   "invoices": {
     "title": "Faturas",

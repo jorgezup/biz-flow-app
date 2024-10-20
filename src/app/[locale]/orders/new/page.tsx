@@ -116,7 +116,9 @@ const CreateOrderPage = () => {
       });
 
       if (response.ok) {
-        router.push(`/${locale}/orders`);
+        setTimeout(() => {
+          router.push(`/${locale}/orders`);
+        }, 1000);
       } else {
         console.error('Failed to create order');
       }

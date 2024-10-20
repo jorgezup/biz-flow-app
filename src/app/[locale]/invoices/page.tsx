@@ -50,8 +50,9 @@ const InvoicesPage = () => {
     toast.info(common('generatingInvoice')); // Display a toast indicating that the invoice is being generated
 
     try {
+      const language = locale === 'pt-br' ? 'pt-BR' : 'en';
       const response = await fetch(
-        `${apiUrl}/invoices/generate-invoice?customerId=${selectedCustomer.customerId}&startDate=${startDate}&endDate=${endDate}&language=${locale}`,
+        `${apiUrl}/invoices/generate-invoice?customerId=${selectedCustomer.customerId}&startDate=${startDate}&endDate=${endDate}&language=${language}`,
         { method: 'GET' }
       );
 
@@ -99,7 +100,7 @@ const InvoicesPage = () => {
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold text-blue-900 mb-6 text-center">{t('title')}</h1>
 
-      <div className="bg-white shadow-md rounded-lg overflow-hidden p-6">
+      <div className="bg-white shadow-md rounded-lg overflow-hidden p-6 min-h-80">
         {/* Filters Section */}
         <div className="mb-6 flex space-x-4 items-center">
           {/* Customer Selector */}

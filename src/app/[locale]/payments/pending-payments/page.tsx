@@ -33,16 +33,16 @@ const PaymentsPage = () => {
   const [totalOrders, setTotalOrders] = useState(0);
 
   // Fetch customers
-  const fetchCustomers = async () => {
-    try {
-      const customersResponse = await fetch(`${apiUrl}/customers`);
-      if (!customersResponse.ok) throw new Error('Failed to fetch customers');
-      const customersData: Customer[] = await customersResponse.json();
-      setCustomers(customersData);
-    } catch (error: any) {
-      setError(error.message);
-    }
-  };
+  // const fetchCustomers = async () => {
+  //   try {
+  //     const customersResponse = await fetch(`${apiUrl}/customers`);
+  //     if (!customersResponse.ok) throw new Error('Failed to fetch customers');
+  //     const customersData: Customer[] = await customersResponse.json();
+  //     setCustomers(customersData);
+  //   } catch (error: any) {
+  //     setError(error.message);
+  //   }
+  // };
 
   // Fetch pending payments (orders) with filters and pagination
   const fetchPendingPayments = async (
@@ -59,11 +59,13 @@ const PaymentsPage = () => {
 
       const response = await fetch(`${apiUrl}/payments/pending-payments?${query}`);
       if (!response.ok) throw new Error('Failed to fetch pending payments');
-      const { result, totalRecords }: PaginatedResponse = await response.json();
-
-      setOrders(result.orders);
-      setTotalPendingAmount(result.totalPendingAmount);
+      const {orders, totalPendingAmount, customerPendingPayment} = await response.json();
+      const totalRecords = orders.length;
+      setOrders(orders);
+      setTotalPendingAmount(totalPendingAmount);
       setTotalOrders(totalRecords);
+      setCustomers(customerPendingPayment)
+      console.log("oi")
     } catch (error: any) {
       setError(error.message);
     }
@@ -136,7 +138,7 @@ const PaymentsPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await fetchCustomers();
+        // await fetchCustomers();
         await fetchPendingPayments(currentPage, pageSize, {
           customerId: selectedCustomer?.customerId,
           startDate,

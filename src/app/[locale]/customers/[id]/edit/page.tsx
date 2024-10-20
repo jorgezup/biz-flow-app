@@ -41,13 +41,14 @@ const EditCustomerPage = ({ params }: { params: { id: string } }) => {
 
   useEffect(() => {
     // Check if form is valid
-    if (customer) {
-      setIsFormValid(
-        customer.name.trim() !== '' &&
-        // customer.email.trim() !== '' &&
-        customer.phoneNumber.trim() !== ''
-        // customer.address.trim() !== ''
-      );
+    if (customer?.name?.trim() !== '' &&
+      // customer?.email?.trim() !== '' &&
+      customer?.phoneNumber?.trim() !== ''
+      // customer?.address?.trim() !== ''
+    ) {
+      setIsFormValid(true);
+    } else {
+      setIsFormValid(false);
     }
   }, [customer]);
 

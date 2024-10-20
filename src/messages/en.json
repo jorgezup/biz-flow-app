@@ -53,8 +53,14 @@
     "of": "of",
     "unit": "Unit",
     "invoiceGenerated": "Invoice generated successfully!",
-    "fillAllFields":"Please fill all fields",
-    "generatingInvoice": "Generating Invoice..."
+    "fillAllFields": "Please fill all fields",
+    "generatingInvoice": "Generating Invoice...",
+    "product": "Product",
+    "subtotal": "Subtotal",
+    "cancel": "Cancel",
+    "startDate": "Data de Início",
+    "endDate": "Data de Fim",
+    "total": "Total"
   },
   "index": {
     "title": "Welcome to BizFlow",
@@ -221,7 +227,17 @@
     "noPaymentRegistered": "-",
     "paymentRegistered": "Payment registered successfully.",
     "selectPaymentMethod": "Select Payment Method",
-    "noCompletedPayments": "No completed payments"
+    "noCompletedPayments": "No completed payments",
+    "summary": "Summary",
+    "product": "Product",
+    "totalQuantity": "Total Quantity",
+    "totalAmount": "Total Amount",
+    "orderDate": "Order Date",
+    "payAllOrders": "Pay All Orders",
+    "processing": "Processing...",
+    "paymentsRegistered": "Payments registered successfully!",
+    "status": "Status",
+    "pending": "Pending"
   },
   "orders": {
     "title": "Orders",
@@ -260,7 +276,8 @@
     "previous": "Previous",
     "next": "Next",
     "deleteOrder": "Delete Order",
-    "orderDeleted": "Order deleted successfully!"
+    "orderDeleted": "Order deleted successfully!",
+    "productSummary": "Product Summary"
   },
   "invoices": {
     "title": "Invoices",
